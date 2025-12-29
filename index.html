@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,6 +11,7 @@
     <meta name="description" content="나만의 막걸리 기록장">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
+
 <body>
     <div id="app">
         <header class="app-header">
@@ -33,7 +35,7 @@
                         <label for="image-input" class="image-placeholder">
                             <span>📷 사진 추가</span>
                         </label>
-                        <input type="file" id="image-input" accept="image/*" capture="environment" hidden>
+                        <input type="file" id="image-input" accept="image/*" hidden>
                         <img id="image-preview" src="" alt="Preview" hidden>
                         <button type="button" id="remove-image" hidden>×</button>
                     </div>
@@ -75,8 +77,8 @@
                     </div>
                 </form>
             </div>
-            
-             <div id="detail-view" class="view">
+
+            <div id="detail-view" class="view">
                 <button type="button" id="back-btn" class="btn-icon">←</button>
                 <div class="detail-container">
                     <img id="detail-image" src="" alt="Detail Image">
@@ -98,4 +100,5 @@
 
     <script type="module" src="js/app.js"></script>
 </body>
+
 </html>
