@@ -1,4 +1,4 @@
-const CACHE_NAME = 'makgeolli-v1';
+const CACHE_NAME = 'makgeolli-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -6,7 +6,9 @@ const ASSETS = [
     './js/app.js',
     './js/db.js',
     './js/router.js',
-    './manifest.json'
+    './manifest.json',
+    './icons/icon-192.png',
+    './icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {

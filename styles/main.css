@@ -3,7 +3,8 @@
     --card-bg: #2d2d2d;
     --text-primary: #f0f0f0;
     --text-secondary: #aaaaaa;
-    --accent-color: #e6c888; /* Makgeolli color */
+    --accent-color: #e6c888;
+    /* Makgeolli color */
     --accent-dark: #b89c60;
     --danger-color: #ff6b6b;
     --input-bg: #3d3d3d;
@@ -28,8 +29,16 @@ body {
 }
 
 /* Typography */
-h1 { font-size: 1.5rem; font-weight: 700; }
-h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
 
 /* Layout */
 .app-header {
@@ -44,12 +53,13 @@ h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
     align-items: center;
     justify-content: center;
     z-index: 100;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .safe-area {
     padding-top: calc(var(--header-height) + var(--spacing-unit));
-    padding-bottom: 80px; /* FAB space */
+    padding-bottom: 80px;
+    /* FAB space */
     padding-left: var(--spacing-unit);
     padding-right: var(--spacing-unit);
     max-width: 600px;
@@ -68,8 +78,15 @@ h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Components */
@@ -83,7 +100,7 @@ h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
     background-color: var(--card-bg);
     border-radius: var(--border-radius);
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
     cursor: pointer;
 }
@@ -145,6 +162,15 @@ h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
     transform: scale(0.9);
 }
 
+.fab.secondary-fab {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--accent-color);
+}
+
 /* Form */
 .form-group {
     margin-bottom: 20px;
@@ -157,7 +183,8 @@ label {
     color: var(--text-secondary);
 }
 
-input[type="text"], textarea {
+input[type="text"],
+textarea {
     width: 100%;
     padding: 12px;
     background-color: var(--input-bg);
@@ -168,7 +195,8 @@ input[type="text"], textarea {
     transition: border-color 0.2s;
 }
 
-input[type="text"]:focus, textarea:focus {
+input[type="text"]:focus,
+textarea:focus {
     outline: none;
     border-color: var(--accent-color);
 }
@@ -212,7 +240,7 @@ input[type="text"]:focus, textarea:focus {
     position: absolute;
     top: 8px;
     right: 8px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     color: white;
     border: none;
     width: 30px;
@@ -242,8 +270,8 @@ input[type="text"]:focus, textarea:focus {
 }
 
 .star-rating label:hover,
-.star-rating label:hover ~ label,
-.star-rating input:checked ~ label {
+.star-rating label:hover~label,
+.star-rating input:checked~label {
     color: var(--accent-color);
 }
 
@@ -279,6 +307,7 @@ input[type="text"]:focus, textarea:focus {
 .detail-container {
     padding-bottom: 40px;
 }
+
 .btn-icon {
     background: none;
     border: none;
@@ -287,6 +316,7 @@ input[type="text"]:focus, textarea:focus {
     margin-bottom: 16px;
     cursor: pointer;
 }
+
 #detail-image {
     width: 100%;
     border-radius: var(--border-radius);
@@ -295,15 +325,18 @@ input[type="text"]:focus, textarea:focus {
     object-fit: contain;
     background: #000;
 }
+
 .meta-info {
     color: var(--accent-color);
     margin-bottom: 12px;
 }
+
 .stars-display {
     color: var(--accent-color);
     font-size: 1.25rem;
     margin-bottom: 16px;
 }
+
 .memo-text {
     white-space: pre-wrap;
     line-height: 1.6;
@@ -312,12 +345,14 @@ input[type="text"]:focus, textarea:focus {
     padding: 16px;
     border-radius: 8px;
 }
+
 .date-text {
     margin-top: 20px;
     font-size: 0.8rem;
     color: #666;
     text-align: right;
 }
+
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;

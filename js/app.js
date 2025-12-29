@@ -8,10 +8,50 @@ const App = {
             router.init();
             this.bindEvents();
             this.renderList();
+            this.initInstallPrompt();
         } catch (error) {
             console.error("Failed to initialize app:", error);
             alert("앱을 실행하는 중 오류가 발생했습니다.");
         }
+    },
+
+    deferredPrompt: null,
+
+    initInstallPrompt() {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+
+            const fabAdd = document.getElementById('fab-add');
+            // Create install button if not exists
+            if (!document.getElementById('install-btn')) {
+                const installBtn = document.createElement('button');
+                installBtn.id = 'install-btn';
+                installBtn.className = 'fab secondary-fab';
+                installBtn.innerHTML = '⬇️';
+                installBtn.ariaLabel = '앱 설치';
+                installBtn.style.bottom = '90px'; // Above the add FAB
+
+                installBtn.addEventListener('click', async () => {
+                    if (this.deferredPrompt) {
+                        this.deferredPrompt.prompt();
+                        const { outcome } = await this.deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            this.deferredPrompt = null;
+                            installBtn.remove();
+                        }
+                    }
+                });
+
+                document.body.appendChild(installBtn);
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            const installBtn = document.getElementById('install-btn');
+            if (installBtn) installBtn.remove();
+            this.deferredPrompt = null;
+        });
     },
 
     bindEvents() {
