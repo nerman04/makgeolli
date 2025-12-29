@@ -40,6 +40,17 @@ export const db = {
         });
     },
 
+    deleteLog(id) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.connection.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.delete(Number(id));
+
+            request.onsuccess = () => resolve();
+            request.onerror = (e) => reject(e.target.error);
+        });
+    },
+
     getAllLogs() {
         return new Promise((resolve, reject) => {
             const transaction = this.connection.transaction([STORE_NAME], 'readonly');

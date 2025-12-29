@@ -322,6 +322,13 @@ textarea:focus {
     color: var(--text-primary);
 }
 
+.btn.danger-btn {
+    background-color: transparent;
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    margin-top: 10px;
+}
+
 /* Detail View */
 .detail-container {
     padding-bottom: 40px;

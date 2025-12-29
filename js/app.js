@@ -69,6 +69,10 @@ const App = {
             router.navigate('list');
         });
 
+        document.getElementById('delete-btn').addEventListener('click', () => {
+            this.handleDelete();
+        });
+
         // Form Submission
         document.getElementById('add-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -262,9 +266,26 @@ const App = {
                 detailImage.hidden = true;
             }
 
+            // Store current ID for deletion
+            this.currentDetailId = id;
+
             router.navigate('detail');
         } catch (e) {
             console.error(e);
+        }
+    },
+
+    currentDetailId: null,
+
+    async handleDelete() {
+        if (!confirm("정말로 이 기록을 삭제하시겠습니까?")) return;
+
+        try {
+            await db.deleteLog(this.currentDetailId);
+            router.navigate('list');
+        } catch (error) {
+            console.error("Error deleting log:", error);
+            alert("삭제에 실패했습니다.");
         }
     }
 };
