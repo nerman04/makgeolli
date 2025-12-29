@@ -32,61 +32,60 @@
             <div id="add-view" class="view">
                 <form id="add-form">
                     <div class="image-upload-container">
-                        <div class="image-upload-container">
-                            <div class="image-buttons" id="image-buttons">
-                                <button type="button" id="btn-camera" class="btn-select-image">
-                                    <span>📸</span>
-                                    <span>촬영</span>
-                                </button>
-                                <button type="button" id="btn-gallery" class="btn-select-image">
-                                    <span>🖼️</span>
-                                    <span>앨범</span>
-                                </button>
-                            </div>
-
-                            <!-- Hidden Inputs -->
-                            <input type="file" id="input-camera" accept="image/*" capture="environment" hidden>
-                            <input type="file" id="input-gallery" accept="image/*" hidden>
-
-                            <img id="image-preview" src="" alt="Preview" hidden>
-                            <button type="button" id="remove-image" hidden>×</button>
+                        <div class="image-buttons" id="image-buttons">
+                            <button type="button" id="btn-camera" class="btn-select-image">
+                                <span>📸</span>
+                                <span>촬영</span>
+                            </button>
+                            <button type="button" id="btn-gallery" class="btn-select-image">
+                                <span>🖼️</span>
+                                <span>앨범</span>
+                            </button>
                         </div>
 
-                        <div class="form-group">
-                            <label for="name">이름</label>
-                            <input type="text" id="name" required placeholder="막걸리 이름">
-                        </div>
+                        <!-- Hidden Inputs -->
+                        <input type="file" id="input-camera" accept="image/*" capture="environment" hidden>
+                        <input type="file" id="input-gallery" accept="image/*" hidden>
 
-                        <div class="form-group">
-                            <label for="brewery">양조장</label>
-                            <input type="text" id="brewery" placeholder="어디서 만들었나요?">
-                        </div>
+                        <img id="image-preview" src="" alt="Preview" hidden>
+                        <button type="button" id="remove-image" hidden>×</button>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="location">마신 장소</label>
-                            <input type="text" id="location" placeholder="어디서 마셨나요?">
-                        </div>
+                    <div class="form-group">
+                        <label for="name">이름</label>
+                        <input type="text" id="name" required placeholder="막걸리 이름">
+                    </div>
 
-                        <div class="form-group">
-                            <label>별점</label>
-                            <div class="star-rating">
-                                <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
-                                <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                                <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                                <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                                <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label for="brewery">양조장</label>
+                        <input type="text" id="brewery" placeholder="어디서 만들었나요?">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="memo">메모</label>
-                            <textarea id="memo" rows="3" placeholder="맛은 어땠나요?"></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label for="location">마신 장소</label>
+                        <input type="text" id="location" placeholder="어디서 마셨나요?">
+                    </div>
 
-                        <div class="form-actions">
-                            <button type="button" id="cancel-btn" class="btn secondary">취소</button>
-                            <button type="submit" class="btn primary">저장</button>
+                    <div class="form-group">
+                        <label>별점</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="memo">메모</label>
+                        <textarea id="memo" rows="3" placeholder="맛은 어땠나요?"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="cancel-btn" class="btn secondary">취소</button>
+                        <button type="submit" class="btn primary">저장</button>
+                    </div>
                 </form>
             </div>
 

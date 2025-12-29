@@ -163,11 +163,14 @@ const App = {
         const memo = document.getElementById('memo').value;
         const ratingInput = document.querySelector('input[name="rating"]:checked');
         const rating = ratingInput ? parseInt(ratingInput.value) : 0;
-        const imageInput = document.getElementById('image-input');
+        const inputCamera = document.getElementById('input-camera');
+        const inputGallery = document.getElementById('input-gallery');
 
         let imageBlob = null;
-        if (imageInput.files[0]) {
-            imageBlob = imageInput.files[0];
+        if (inputCamera.files[0]) {
+            imageBlob = inputCamera.files[0];
+        } else if (inputGallery.files[0]) {
+            imageBlob = inputGallery.files[0];
         }
 
         const logData = {
