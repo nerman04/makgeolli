@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>막걸리 log</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles/main.css">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="description" content="나만의 막걸리 기록장">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <div id="app">
+        <header class="app-header">
+            <h1>막걸리 log</h1>
+        </header>
+
+        <main id="main-content" class="safe-area">
+            <!-- Views will be injected here -->
+            <div id="list-view" class="view active">
+                <div id="makgeolli-list" class="card-grid">
+                    <!-- Cards injected via JS -->
+                    <div class="empty-state">
+                        <p>아직 기록된 막걸리가 없습니다.<br>오른쪽 아래 버튼을 눌러 추가해보세요!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="add-view" class="view">
+                <form id="add-form">
+                    <div class="image-upload-container">
+                        <label for="image-input" class="image-placeholder">
+                            <span>📷 사진 추가</span>
+                        </label>
+                        <input type="file" id="image-input" accept="image/*" capture="environment" hidden>
+                        <img id="image-preview" src="" alt="Preview" hidden>
+                        <button type="button" id="remove-image" hidden>×</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">이름</label>
+                        <input type="text" id="name" required placeholder="막걸리 이름">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brewery">양조장</label>
+                        <input type="text" id="brewery" placeholder="어디서 만들었나요?">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">마신 장소</label>
+                        <input type="text" id="location" placeholder="어디서 마셨나요?">
+                    </div>
+
+                    <div class="form-group">
+                        <label>별점</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="memo">메모</label>
+                        <textarea id="memo" rows="3" placeholder="맛은 어땠나요?"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="cancel-btn" class="btn secondary">취소</button>
+                        <button type="submit" class="btn primary">저장</button>
+                    </div>
+                </form>
+            </div>
+            
+             <div id="detail-view" class="view">
+                <button type="button" id="back-btn" class="btn-icon">←</button>
+                <div class="detail-container">
+                    <img id="detail-image" src="" alt="Detail Image">
+                    <div class="detail-content">
+                        <h2 id="detail-name"></h2>
+                        <p id="detail-meta" class="meta-info"></p>
+                        <div id="detail-rating" class="stars-display"></div>
+                        <p id="detail-memo" class="memo-text"></p>
+                        <p id="detail-date" class="date-text"></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <button id="fab-add" class="fab" aria-label="추가">
+            +
+        </button>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
