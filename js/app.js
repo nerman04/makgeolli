@@ -76,16 +76,23 @@ const App = {
         });
 
         // Image Handling
-        const imageInput = document.getElementById('image-input');
+        const inputCamera = document.getElementById('input-camera');
+        const inputGallery = document.getElementById('input-gallery');
         const imagePreview = document.getElementById('image-preview');
         const removeImageBtn = document.getElementById('remove-image');
-        const placeholder = document.querySelector('.image-placeholder');
+        const imageButtons = document.getElementById('image-buttons');
 
-        // Allow clicking the placeholder to trigger input
-        // Note: The label wraps the placeholder text, so clicking it triggers input automatically via 'for' attribute.
-        // But we need to handle styles.
+        // Button Click Handlers
+        document.getElementById('btn-camera').addEventListener('click', () => {
+            inputCamera.click();
+        });
 
-        imageInput.addEventListener('change', (e) => {
+        document.getElementById('btn-gallery').addEventListener('click', () => {
+            inputGallery.click();
+        });
+
+        // Common File Handler
+        const handleFileSelect = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -93,14 +100,17 @@ const App = {
                     imagePreview.src = e.target.result;
                     imagePreview.hidden = false;
                     removeImageBtn.hidden = false;
-                    placeholder.style.opacity = '0';
+                    imageButtons.style.display = 'none'; // Hide buttons
                 };
                 reader.readAsDataURL(file);
             }
-        });
+        };
+
+        inputCamera.addEventListener('change', handleFileSelect);
+        inputGallery.addEventListener('change', handleFileSelect);
 
         removeImageBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // prevent triggering label
+            e.stopPropagation();
             e.preventDefault();
             this.resetImageInput();
         });
@@ -127,16 +137,18 @@ const App = {
     },
 
     resetImageInput() {
-        const imageInput = document.getElementById('image-input');
+        const inputCamera = document.getElementById('input-camera');
+        const inputGallery = document.getElementById('input-gallery');
         const imagePreview = document.getElementById('image-preview');
         const removeImageBtn = document.getElementById('remove-image');
-        const placeholder = document.querySelector('.image-placeholder');
+        const imageButtons = document.getElementById('image-buttons');
 
-        imageInput.value = '';
+        inputCamera.value = '';
+        inputGallery.value = '';
         imagePreview.src = '';
         imagePreview.hidden = true;
         removeImageBtn.hidden = true;
-        placeholder.style.opacity = '1';
+        imageButtons.style.display = 'flex';
     },
 
     resetForm() {

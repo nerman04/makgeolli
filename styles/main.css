@@ -216,15 +216,33 @@ textarea:focus {
     justify-content: center;
 }
 
-.image-placeholder {
-    width: 100%;
-    height: 100%;
+.image-buttons {
+    display: flex;
+    gap: 20px;
+    z-index: 10;
+}
+
+.btn-select-image {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
     cursor: pointer;
-    color: var(--text-secondary);
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-select-image:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.btn-select-image span:first-child {
+    font-size: 2rem;
 }
 
 #image-preview {
@@ -247,6 +265,7 @@ textarea:focus {
     height: 30px;
     border-radius: 50%;
     cursor: pointer;
+    z-index: 30;
 }
 
 /* Star Rating */
