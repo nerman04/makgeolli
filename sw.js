@@ -1,4 +1,4 @@
-const CACHE_NAME = 'makgeolli-v2';
+const CACHE_NAME = 'makgeolli-v3';
 const ASSETS = [
     './',
     './index.html',
