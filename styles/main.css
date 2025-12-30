@@ -56,6 +56,18 @@ h2 {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.header-badge {
+    font-size: 0.9rem;
+    font-weight: 500;
+    background-color: var(--accent-color);
+    color: #1a1a1a;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 .safe-area {
     padding-top: calc(var(--header-height) + var(--spacing-unit));
     padding-bottom: 80px;
@@ -112,8 +124,9 @@ h2 {
 .card-img {
     width: 100%;
     aspect-ratio: 1;
-    object-fit: cover;
-    background-color: #444;
+    object-fit: contain;
+    background-color: #000;
+    display: block;
 }
 
 .card-content {
@@ -347,14 +360,27 @@ textarea:focus {
     width: 100%;
     border-radius: var(--border-radius);
     margin-bottom: 20px;
-    max-height: 400px;
+    max-height: 60vh;
     object-fit: contain;
     background: #000;
 }
 
-.meta-info {
-    color: var(--accent-color);
-    margin-bottom: 12px;
+.detail-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-info-row .label {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.detail-info-row .value {
+    color: var(--text-primary);
+    font-weight: 500;
 }
 
 .stars-display {

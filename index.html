@@ -15,7 +15,7 @@
 <body>
     <div id="app">
         <header class="app-header">
-            <h1>막걸리 log</h1>
+            <h1>막걸리 log <span id="total-count" class="header-badge"></span></h1>
         </header>
 
         <main id="main-content" class="safe-area">
@@ -95,7 +95,17 @@
                     <img id="detail-image" src="" alt="Detail Image">
                     <div class="detail-content">
                         <h2 id="detail-name"></h2>
-                        <p id="detail-meta" class="meta-info"></p>
+
+                        <div class="detail-info-row">
+                            <span class="label">양조장</span>
+                            <span id="detail-brewery" class="value"></span>
+                        </div>
+
+                        <div class="detail-info-row">
+                            <span class="label">장소</span>
+                            <span id="detail-location" class="value"></span>
+                        </div>
+
                         <div id="detail-rating" class="stars-display"></div>
                         <p id="detail-memo" class="memo-text"></p>
                         <p id="detail-date" class="date-text"></p>

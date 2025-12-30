@@ -171,10 +171,22 @@ const App = {
         const inputGallery = document.getElementById('input-gallery');
 
         let imageBlob = null;
+        let thumbnailBlob = null;
+
         if (inputCamera.files[0]) {
             imageBlob = inputCamera.files[0];
         } else if (inputGallery.files[0]) {
             imageBlob = inputGallery.files[0];
+        }
+
+        if (imageBlob) {
+            try {
+                // Create thumbnail (max 300px)
+                thumbnailBlob = await this.resizeImage(imageBlob, 300, 300);
+            } catch (e) {
+                console.error("Failed to create thumbnail:", e);
+                // Fallback: just use original if resize fails, or leave null
+            }
         }
 
         const logData = {
@@ -184,7 +196,8 @@ const App = {
             rating,
             memo,
             date: new Date().toISOString(),
-            image: imageBlob
+            image: imageBlob,
+            thumbnail: thumbnailBlob
         };
 
         try {
@@ -197,10 +210,53 @@ const App = {
         }
     },
 
+    resizeImage(file, maxWidth, maxHeight) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    URL.revokeObjectURL(img.src);
+                    resolve(blob);
+                }, file.type, 0.7); // 0.7 quality
+            };
+            img.onerror = reject;
+        });
+    },
+
     async renderList() {
         const listContainer = document.getElementById('makgeolli-list');
+        const countBadge = document.getElementById('total-count');
+
         try {
             const logs = await db.getAllLogs();
+
+            // Update total count
+            if (countBadge) {
+                countBadge.textContent = `${logs.length}건`;
+                countBadge.style.display = logs.length > 0 ? 'inline-block' : 'none';
+            }
 
             if (logs.length === 0) {
                 listContainer.innerHTML = `
@@ -218,14 +274,17 @@ const App = {
                 card.dataset.id = log.id;
 
                 let imageUrl = 'assets/placeholder.png'; // Fallback
-                if (log.image) {
+                // Prefer thumbnail, fall back to image
+                if (log.thumbnail) {
+                    imageUrl = URL.createObjectURL(log.thumbnail);
+                } else if (log.image) {
                     imageUrl = URL.createObjectURL(log.image);
                 }
 
                 const dateStr = new Date(log.date).toLocaleDateString();
 
                 card.innerHTML = `
-                    <div class="card-img" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;"></div>
+                    <img src="${imageUrl}" class="card-img" alt="${log.name}" loading="lazy">
                     <div class="card-content">
                         <h3 class="card-title">${log.name}</h3>
                         <div class="card-meta">
@@ -248,13 +307,15 @@ const App = {
 
             const detailName = document.getElementById('detail-name');
             const detailImage = document.getElementById('detail-image');
-            const detailMeta = document.getElementById('detail-meta');
+            const detailBrewery = document.getElementById('detail-brewery');
+            const detailLocation = document.getElementById('detail-location');
             const detailRating = document.getElementById('detail-rating');
             const detailMemo = document.getElementById('detail-memo');
             const detailDate = document.getElementById('detail-date');
 
             detailName.textContent = log.name;
-            detailMeta.textContent = [log.brewery, log.location].filter(Boolean).join(' | ');
+            detailBrewery.textContent = log.brewery || '-';
+            detailLocation.textContent = log.location || '-';
             detailRating.textContent = '★'.repeat(log.rating) + '☆'.repeat(5 - log.rating);
             detailMemo.textContent = log.memo;
             detailDate.textContent = new Date(log.date).toLocaleString();
