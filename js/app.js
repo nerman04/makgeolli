@@ -10,9 +10,18 @@ const App = {
             this.initSortControls();
             await this.loadLogs();
             this.initInstallPrompt();
+            this.registerServiceWorker();
         } catch (error) {
             console.error("Failed to initialize app:", error);
             alert("앱을 실행하는 중 오류가 발생했습니다.");
+        }
+    },
+
+    registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.error('Service Worker registration failed', err));
         }
     },
 
