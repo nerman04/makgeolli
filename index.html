@@ -21,6 +21,12 @@
         <main id="main-content" class="safe-area">
             <!-- Views will be injected here -->
             <div id="list-view" class="view active">
+                <div class="sort-controls">
+                    <button class="sort-chip active" data-sort="date">최신순</button>
+                    <button class="sort-chip" data-sort="ratingOverall">별점순</button>
+                    <button class="sort-chip" data-sort="ratingPrice">가격순</button>
+                    <button class="sort-chip" data-sort="ratingTaste">맛순</button>
+                </div>
                 <div id="makgeolli-list" class="card-grid">
                     <!-- Cards injected via JS -->
                     <div class="empty-state">
@@ -53,33 +59,62 @@
 
                     <div class="form-group">
                         <label for="name">이름</label>
-                        <input type="text" id="name" required placeholder="막걸리 이름">
+                        <input type="text" id="name" class="form-input" required placeholder="막걸리 이름">
                     </div>
 
                     <div class="form-group">
-                        <label for="brewery">양조장</label>
-                        <input type="text" id="brewery" placeholder="어디서 만들었나요?">
+                        <label for="region">지역</label>
+                        <input type="text" id="region" class="form-input" placeholder="어느 지역 막걸리인가요?">
                     </div>
 
                     <div class="form-group">
-                        <label for="location">마신 장소</label>
-                        <input type="text" id="location" placeholder="어디서 마셨나요?">
+                        <label for="alcohol">도수 (%)</label>
+                        <input type="number" id="alcohol" class="form-input" step="0.5" value="5" placeholder="ex) 6.5">
                     </div>
 
                     <div class="form-group">
-                        <label>별점</label>
+                        <label>별점 (전체)</label>
+                        <div class="star-rating accent-overall">
+                            <input type="radio" id="overall5" name="rating_overall" value="5" checked><label
+                                for="overall5">★</label>
+                            <input type="radio" id="overall4" name="rating_overall" value="4"><label
+                                for="overall4">★</label>
+                            <input type="radio" id="overall3" name="rating_overall" value="3"><label
+                                for="overall3">★</label>
+                            <input type="radio" id="overall2" name="rating_overall" value="2"><label
+                                for="overall2">★</label>
+                            <input type="radio" id="overall1" name="rating_overall" value="1"><label
+                                for="overall1">★</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>가격</label>
                         <div class="star-rating">
-                            <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
-                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                            <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
-                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                            <input type="radio" id="price5" name="rating_price" value="5" checked><label
+                                for="price5">★</label>
+                            <input type="radio" id="price4" name="rating_price" value="4"><label for="price4">★</label>
+                            <input type="radio" id="price3" name="rating_price" value="3"><label for="price3">★</label>
+                            <input type="radio" id="price2" name="rating_price" value="2"><label for="price2">★</label>
+                            <input type="radio" id="price1" name="rating_price" value="1"><label for="price1">★</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>맛</label>
+                        <div class="star-rating">
+                            <input type="radio" id="taste5" name="rating_taste" value="5" checked><label
+                                for="taste5">★</label>
+                            <input type="radio" id="taste4" name="rating_taste" value="4"><label for="taste4">★</label>
+                            <input type="radio" id="taste3" name="rating_taste" value="3"><label for="taste3">★</label>
+                            <input type="radio" id="taste2" name="rating_taste" value="2"><label for="taste2">★</label>
+                            <input type="radio" id="taste1" name="rating_taste" value="1"><label for="taste1">★</label>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="memo">메모</label>
-                        <textarea id="memo" rows="3" placeholder="맛은 어땠나요?"></textarea>
+                        <textarea id="memo" class="form-input" rows="3" placeholder="어떤 특징이 더 있나요?"></textarea>
                     </div>
 
                     <div class="form-actions">
@@ -97,16 +132,27 @@
                         <h2 id="detail-name"></h2>
 
                         <div class="detail-info-row">
-                            <span class="label">양조장</span>
-                            <span id="detail-brewery" class="value"></span>
+                            <span class="label">지역</span>
+                            <span id="detail-region" class="value"></span>
                         </div>
 
                         <div class="detail-info-row">
-                            <span class="label">장소</span>
-                            <span id="detail-location" class="value"></span>
+                            <span class="label">도수</span>
+                            <span id="detail-alcohol" class="value"></span>
                         </div>
 
-                        <div id="detail-rating" class="stars-display"></div>
+                        <div class="detail-info-row">
+                            <span class="label">별점 (전체)</span>
+                            <span id="detail-rating-overall" class="stars-display-small"></span>
+                        </div>
+                        <div class="detail-info-row">
+                            <span class="label">가격</span>
+                            <span id="detail-rating-price" class="stars-display-small"></span>
+                        </div>
+                        <div class="detail-info-row">
+                            <span class="label">맛</span>
+                            <span id="detail-rating-taste" class="stars-display-small"></span>
+                        </div>
                         <p id="detail-memo" class="memo-text"></p>
                         <p id="detail-date" class="date-text"></p>
 

@@ -6,8 +6,9 @@ const App = {
         try {
             await db.open();
             router.init();
-            this.bindEvents();
-            this.renderList();
+            this.initEventListeners();
+            this.initSortControls();
+            await this.loadLogs();
             this.initInstallPrompt();
         } catch (error) {
             console.error("Failed to initialize app:", error);
@@ -54,7 +55,22 @@ const App = {
         });
     },
 
-    bindEvents() {
+    initSortControls() {
+        const sortButtons = document.querySelectorAll('.sort-chip');
+        sortButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active state
+                sortButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Update sort state and reload
+                this.currentSort = btn.dataset.sort;
+                this.loadLogs();
+            });
+        });
+    },
+
+    initEventListeners() {
         // Navigation
         document.getElementById('fab-add').addEventListener('click', () => {
             router.navigate('add');
@@ -122,7 +138,7 @@ const App = {
         // Listen for view changes to refresh data if needed
         window.addEventListener('viewChanged', (e) => {
             if (e.detail.view === 'list') {
-                this.renderList();
+                this.loadLogs();
                 document.getElementById('fab-add').style.display = 'flex';
             } else {
                 document.getElementById('fab-add').style.display = 'none';
@@ -162,11 +178,23 @@ const App = {
 
     async handleSave() {
         const name = document.getElementById('name').value;
-        const brewery = document.getElementById('brewery').value;
-        const location = document.getElementById('location').value;
+        const region = document.getElementById('region').value;
+        const alcohol = document.getElementById('alcohol').value;
         const memo = document.getElementById('memo').value;
-        const ratingInput = document.querySelector('input[name="rating"]:checked');
-        const rating = ratingInput ? parseInt(ratingInput.value) : 0;
+
+        // Ratings
+        const getRating = (name) => {
+            const input = document.querySelector(`input[name="${name}"]:checked`);
+            return input ? parseInt(input.value) : 0;
+        };
+
+        const ratingOverall = getRating('rating_overall');
+        const ratingPrice = getRating('rating_price');
+        const ratingTaste = getRating('rating_taste');
+
+        // Backward compatibility for list view sorting/display
+        const rating = ratingOverall;
+
         const inputCamera = document.getElementById('input-camera');
         const inputGallery = document.getElementById('input-gallery');
 
@@ -185,15 +213,18 @@ const App = {
                 thumbnailBlob = await this.resizeImage(imageBlob, 300, 300);
             } catch (e) {
                 console.error("Failed to create thumbnail:", e);
-                // Fallback: just use original if resize fails, or leave null
+                // Fallback
             }
         }
 
         const logData = {
             name,
-            brewery,
-            location,
-            rating,
+            region,
+            alcohol,
+            rating, // Kept for easy access/sorting
+            ratingOverall,
+            ratingPrice,
+            ratingTaste,
             memo,
             date: new Date().toISOString(),
             image: imageBlob,
@@ -204,6 +235,7 @@ const App = {
             await db.addLog(logData);
             this.resetForm();
             router.navigate('list');
+            this.loadLogs();
         } catch (error) {
             console.error("Error saving log:", error);
             alert("저장에 실패했습니다.");
@@ -245,58 +277,81 @@ const App = {
         });
     },
 
-    async renderList() {
-        const listContainer = document.getElementById('makgeolli-list');
-        const countBadge = document.getElementById('total-count');
-
+    async loadLogs() {
         try {
             const logs = await db.getAllLogs();
 
-            // Update total count
-            if (countBadge) {
-                countBadge.textContent = `${logs.length}건`;
-                countBadge.style.display = logs.length > 0 ? 'inline-block' : 'none';
-            }
+            // Client-side sorting
+            logs.sort((a, b) => {
+                const dateA = new Date(a.date).getTime();
+                const dateB = new Date(b.date).getTime();
 
-            if (logs.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="empty-state">
-                        <p>아직 기록된 막걸리가 없습니다.<br>오른쪽 아래 버튼을 눌러 추가해보세요!</p>
-                    </div>`;
-                return;
-            }
-
-            listContainer.innerHTML = ''; // Clear current list
-
-            for (const log of logs) {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.dataset.id = log.id;
-
-                let imageUrl = 'assets/placeholder.png'; // Fallback
-                // Prefer thumbnail, fall back to image
-                if (log.thumbnail) {
-                    imageUrl = URL.createObjectURL(log.thumbnail);
-                } else if (log.image) {
-                    imageUrl = URL.createObjectURL(log.image);
+                switch (this.currentSort) {
+                    case 'ratingOverall':
+                        return (b.ratingOverall || 0) - (a.ratingOverall || 0) || dateB - dateA;
+                    case 'ratingPrice':
+                        return (b.ratingPrice || 0) - (a.ratingPrice || 0) || dateB - dateA;
+                    case 'ratingTaste':
+                        return (b.ratingTaste || 0) - (a.ratingTaste || 0) || dateB - dateA;
+                    case 'date':
+                    default:
+                        // Sort by date desc
+                        return dateB - dateA;
                 }
+            });
 
-                const dateStr = new Date(log.date).toLocaleDateString();
-
-                card.innerHTML = `
-                    <img src="${imageUrl}" class="card-img" alt="${log.name}" loading="lazy">
-                    <div class="card-content">
-                        <h3 class="card-title">${log.name}</h3>
-                        <div class="card-meta">
-                            <span class="stars">${'★'.repeat(log.rating)}${'☆'.repeat(5 - log.rating)}</span>
-                            <span>${dateStr}</span>
-                        </div>
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            }
+            this.renderLogList(logs);
         } catch (error) {
-            console.error("Error rendering list:", error);
+            console.error("Failed to load logs:", error);
+        }
+    },
+
+    renderLogList(logs) {
+        const listContainer = document.getElementById('makgeolli-list');
+        const countBadge = document.getElementById('total-count');
+
+        // Update total count
+        if (countBadge) {
+            countBadge.textContent = `${logs.length}건`;
+            countBadge.style.display = logs.length > 0 ? 'inline-block' : 'none';
+        }
+
+        if (!logs || logs.length === 0) {
+            listContainer.innerHTML = `
+                <div class="empty-state">
+                    <p>아직 기록된 막걸리가 없습니다.<br>오른쪽 아래 버튼을 눌러 추가해보세요!</p>
+                </div>`;
+            return;
+        }
+
+        listContainer.innerHTML = ''; // Clear current list
+
+        for (const log of logs) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.id = log.id;
+
+            let imageUrl = 'assets/placeholder.png'; // Fallback
+            // Prefer thumbnail, fall back to image
+            if (log.thumbnail) {
+                imageUrl = URL.createObjectURL(log.thumbnail);
+            } else if (log.image) {
+                imageUrl = URL.createObjectURL(log.image);
+            }
+
+            const dateStr = new Date(log.date).toLocaleDateString();
+
+            card.innerHTML = `
+                <img src="${imageUrl}" class="card-img" alt="${log.name}" loading="lazy">
+                <div class="card-content">
+                    <h3 class="card-title">${log.name}</h3>
+                    <div class="card-meta">
+                        <span class="stars">${'★'.repeat(log.ratingOverall || log.rating || 0)}${'☆'.repeat(5 - (log.ratingOverall || log.rating || 0))}</span>
+                        <span>${dateStr}</span>
+                    </div>
+                </div>
+            `;
+            listContainer.appendChild(card);
         }
     },
 
@@ -307,16 +362,28 @@ const App = {
 
             const detailName = document.getElementById('detail-name');
             const detailImage = document.getElementById('detail-image');
-            const detailBrewery = document.getElementById('detail-brewery');
-            const detailLocation = document.getElementById('detail-location');
-            const detailRating = document.getElementById('detail-rating');
+
+            const detailRegion = document.getElementById('detail-region');
+            const detailAlcohol = document.getElementById('detail-alcohol');
+            const detailRatingOverall = document.getElementById('detail-rating-overall');
+            const detailRatingPrice = document.getElementById('detail-rating-price');
+            const detailRatingTaste = document.getElementById('detail-rating-taste');
+
             const detailMemo = document.getElementById('detail-memo');
             const detailDate = document.getElementById('detail-date');
 
             detailName.textContent = log.name;
-            detailBrewery.textContent = log.brewery || '-';
-            detailLocation.textContent = log.location || '-';
-            detailRating.textContent = '★'.repeat(log.rating) + '☆'.repeat(5 - log.rating);
+
+            // New fields with fallback to old fields
+            detailRegion.textContent = log.region || log.brewery || '-';
+            detailAlcohol.textContent = log.alcohol ? `${log.alcohol}%` : '-';
+
+            const makeStars = (score) => '★'.repeat(score || 0) + '☆'.repeat(5 - (score || 0));
+
+            detailRatingOverall.textContent = makeStars(log.ratingOverall || log.rating);
+            detailRatingPrice.textContent = makeStars(log.ratingPrice);
+            detailRatingTaste.textContent = makeStars(log.ratingTaste);
+
             detailMemo.textContent = log.memo;
             detailDate.textContent = new Date(log.date).toLocaleString();
 

@@ -1,5 +1,5 @@
 const DB_NAME = 'MakgeolliDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'logs';
 
 export const db = {
@@ -21,9 +21,49 @@ export const db = {
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
+                let store;
+
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
                     store.createIndex('date', 'date', { unique: false });
+                } else {
+                    store = event.target.transaction.objectStore(STORE_NAME);
+                }
+
+                // Add new indices for v2
+                if (!store.indexNames.contains('region')) {
+                    store.createIndex('region', 'region', { unique: false });
+                }
+                if (!store.indexNames.contains('ratingOverall')) {
+                    store.createIndex('ratingOverall', 'ratingOverall', { unique: false });
+                }
+
+                // Data Migration for v2
+                if (event.oldVersion < 2) {
+                    const request = store.openCursor();
+                    request.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            const updateData = cursor.value;
+                            let changed = false;
+
+                            // Migrate Brewery -> Region
+                            if (updateData.brewery && !updateData.region) {
+                                updateData.region = updateData.brewery;
+                                changed = true;
+                            }
+                            // Migrate Rating -> RatingOverall
+                            if (updateData.rating !== undefined && updateData.ratingOverall === undefined) {
+                                updateData.ratingOverall = updateData.rating;
+                                changed = true;
+                            }
+
+                            if (changed) {
+                                cursor.update(updateData);
+                            }
+                            cursor.continue();
+                        }
+                    };
                 }
             };
         });

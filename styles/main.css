@@ -102,6 +102,37 @@ h2 {
 }
 
 /* Components */
+/* Sort Controls */
+.sort-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scroll on mobile */
+}
+
+.sort-chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sort-chip.active {
+    background-color: var(--accent-color);
+    color: #1a1a1a;
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* Card Grid */
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -196,8 +227,7 @@ label {
     color: var(--text-secondary);
 }
 
-input[type="text"],
-textarea {
+.form-input {
     width: 100%;
     padding: 12px;
     background-color: var(--input-bg);
@@ -208,8 +238,7 @@ textarea {
     transition: border-color 0.2s;
 }
 
-input[type="text"]:focus,
-textarea:focus {
+.form-input:focus {
     outline: none;
     border-color: var(--accent-color);
 }
@@ -387,6 +416,24 @@ textarea:focus {
     color: var(--accent-color);
     font-size: 1.25rem;
     margin-bottom: 16px;
+}
+
+.stars-display-small {
+    color: var(--accent-color);
+    font-size: 1rem;
+    letter-spacing: 2px;
+}
+
+/* Distinct color for Overall Rating */
+.accent-overall label:hover,
+.accent-overall label:hover~label,
+.accent-overall input:checked~label {
+    color: #FFC107 !important;
+    /* Amber/Gold */
+}
+
+#detail-rating-overall {
+    color: #FFC107;
 }
 
 .memo-text {
