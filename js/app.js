@@ -19,7 +19,9 @@ const App = {
 
     registerServiceWorker() {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
+            // Use timestamp or version to bust cache
+            const swUrl = './sw.js?ver=' + new Date().getTime();
+            navigator.serviceWorker.register(swUrl)
                 .then(reg => console.log('Service Worker registered', reg))
                 .catch(err => console.error('Service Worker registration failed', err));
         }
