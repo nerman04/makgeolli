@@ -334,9 +334,17 @@ const App = {
             let imageUrl = 'assets/placeholder.png'; // Fallback
             // Prefer thumbnail, fall back to image
             if (log.thumbnail) {
-                imageUrl = URL.createObjectURL(log.thumbnail);
+                if (typeof log.thumbnail === 'string') {
+                    imageUrl = log.thumbnail;
+                } else {
+                    imageUrl = URL.createObjectURL(log.thumbnail);
+                }
             } else if (log.image) {
-                imageUrl = URL.createObjectURL(log.image);
+                if (typeof log.image === 'string') {
+                    imageUrl = log.image;
+                } else {
+                    imageUrl = URL.createObjectURL(log.image);
+                }
             }
 
             const dateStr = new Date(log.date).toLocaleDateString();

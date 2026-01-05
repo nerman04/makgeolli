@@ -66,6 +66,53 @@ export const db = {
     async deleteLog(id) {
         if (!this.client) await this.open();
 
+        // 1. Fetch log info to get image paths
+        const { data: log, error: fetchError } = await this.client
+            .from('logs')
+            .select('image_url, thumbnail_url')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) {
+            console.error("Error fetching log for deletion:", fetchError);
+            throw fetchError;
+        }
+
+        // 2. Delete images from Storage
+        const filesToDelete = [];
+        const extractPath = (url) => {
+            if (!url) return null;
+            try {
+                // URL example: .../storage/v1/object/public/makgeolli-images/filename.jpg
+                const parts = url.split('/makgeolli-images/');
+                if (parts.length === 2) return parts[1];
+            } catch (e) {
+                console.error("Error parsing URL:", url);
+            }
+            return null;
+        };
+
+        if (log.image_url) {
+            const path = extractPath(log.image_url);
+            if (path) filesToDelete.push(path);
+        }
+        if (log.thumbnail_url) {
+            const path = extractPath(log.thumbnail_url);
+            if (path) filesToDelete.push(path);
+        }
+
+        if (filesToDelete.length > 0) {
+            const { error: storageError } = await this.client.storage
+                .from('makgeolli-images')
+                .remove(filesToDelete);
+
+            if (storageError) {
+                console.error("Error deleting files from storage:", storageError);
+                // Continue to delete record even if storage delete fails
+            }
+        }
+
+        // 3. Delete record
         const { error } = await this.client
             .from('logs')
             .delete()
