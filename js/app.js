@@ -388,7 +388,11 @@ const App = {
             detailDate.textContent = new Date(log.date).toLocaleString();
 
             if (log.image) {
-                detailImage.src = URL.createObjectURL(log.image);
+                if (typeof log.image === 'string') {
+                    detailImage.src = log.image;
+                } else {
+                    detailImage.src = URL.createObjectURL(log.image);
+                }
                 detailImage.hidden = false;
             } else {
                 detailImage.hidden = true;

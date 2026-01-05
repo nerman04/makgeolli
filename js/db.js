@@ -1,120 +1,128 @@
-const DB_NAME = 'MakgeolliDB';
-const DB_VERSION = 2;
-const STORE_NAME = 'logs';
+import { SUPABASE_URL, SUPABASE_KEY } from './supabase-config.js';
 
 export const db = {
-    connection: null,
+    client: null,
 
-    open() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-            request.onerror = (event) => {
-                console.error("IndexedDB error:", event.target.error);
-                reject(event.target.error);
-            };
-
-            request.onsuccess = (event) => {
-                this.connection = event.target.result;
-                resolve(this.connection);
-            };
-
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                let store;
-
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                    store.createIndex('date', 'date', { unique: false });
-                } else {
-                    store = event.target.transaction.objectStore(STORE_NAME);
-                }
-
-                // Add new indices for v2
-                if (!store.indexNames.contains('region')) {
-                    store.createIndex('region', 'region', { unique: false });
-                }
-                if (!store.indexNames.contains('ratingOverall')) {
-                    store.createIndex('ratingOverall', 'ratingOverall', { unique: false });
-                }
-
-                // Data Migration for v2
-                if (event.oldVersion < 2) {
-                    const request = store.openCursor();
-                    request.onsuccess = (event) => {
-                        const cursor = event.target.result;
-                        if (cursor) {
-                            const updateData = cursor.value;
-                            let changed = false;
-
-                            // Migrate Brewery -> Region
-                            if (updateData.brewery && !updateData.region) {
-                                updateData.region = updateData.brewery;
-                                changed = true;
-                            }
-                            // Migrate Rating -> RatingOverall
-                            if (updateData.rating !== undefined && updateData.ratingOverall === undefined) {
-                                updateData.ratingOverall = updateData.rating;
-                                changed = true;
-                            }
-
-                            if (changed) {
-                                cursor.update(updateData);
-                            }
-                            cursor.continue();
-                        }
-                    };
-                }
-            };
-        });
+    async open() {
+        if (!window.supabase) {
+            console.error("Supabase SDK not loaded");
+            return;
+        }
+        this.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase Client Initialized");
     },
 
-    addLog(data) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.connection.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.add(data);
+    async addLog(data) {
+        if (!this.client) await this.open();
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = (e) => reject(e.target.error);
-        });
+        let imageUrl = null;
+        let thumbnailUrl = null;
+
+        // Upload Image
+        if (data.image) {
+            imageUrl = await this.uploadFile(data.image);
+        }
+        // Upload Thumbnail
+        if (data.thumbnail) {
+            thumbnailUrl = await this.uploadFile(data.thumbnail);
+        }
+
+        const { data: result, error } = await this.client
+            .from('logs')
+            .insert({
+                name: data.name,
+                region: data.region,
+                alcohol: data.alcohol,
+                rating_overall: data.ratingOverall,
+                rating_price: data.ratingPrice,
+                rating_taste: data.ratingTaste,
+                memo: data.memo,
+                date: data.date,
+                image_url: imageUrl,
+                thumbnail_url: thumbnailUrl
+            })
+            .select();
+
+        if (error) throw error;
+        return result;
     },
 
-    deleteLog(id) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.connection.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.delete(Number(id));
+    async uploadFile(file) {
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+        const { data, error } = await this.client.storage
+            .from('makgeolli-images')
+            .upload(fileName, file);
 
-            request.onsuccess = () => resolve();
-            request.onerror = (e) => reject(e.target.error);
-        });
+        if (error) throw error;
+
+        // Get Public URL
+        const { data: publicData } = this.client.storage
+            .from('makgeolli-images')
+            .getPublicUrl(fileName);
+
+        return publicData.publicUrl;
     },
 
-    getAllLogs() {
-        return new Promise((resolve, reject) => {
-            const transaction = this.connection.transaction([STORE_NAME], 'readonly');
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.getAll();
+    async deleteLog(id) {
+        if (!this.client) await this.open();
 
-            request.onsuccess = () => {
-                // Sort by date descending (newest first)
-                const results = request.result;
-                results.sort((a, b) => new Date(b.date) - new Date(a.date));
-                resolve(results);
-            };
-            request.onerror = (e) => reject(e.target.error);
-        });
+        const { error } = await this.client
+            .from('logs')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
     },
 
-    getLog(id) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.connection.transaction([STORE_NAME], 'readonly');
-            const store = transaction.objectStore(STORE_NAME);
-            const request = store.get(Number(id)); // Ensure id is a number
+    async getAllLogs() {
+        if (!this.client) await this.open();
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = (e) => reject(e.target.error);
-        });
+        const { data, error } = await this.client
+            .from('logs')
+            .select('*')
+            .order('date', { ascending: false });
+
+        if (error) throw error;
+
+        // Map Supabase fields to App fields
+        return data.map(item => ({
+            id: item.id,
+            name: item.name,
+            region: item.region,
+            alcohol: item.alcohol,
+            ratingOverall: item.rating_overall,
+            ratingPrice: item.rating_price,
+            ratingTaste: item.rating_taste,
+            memo: item.memo,
+            date: item.date,
+            image: item.image_url,      // Map URL to 'image'
+            thumbnail: item.thumbnail_url // Map URL to 'thumbnail'
+        }));
+    },
+
+    async getLog(id) {
+        if (!this.client) await this.open();
+
+        const { data, error } = await this.client
+            .from('logs')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) throw error;
+
+        return {
+            id: data.id,
+            name: data.name,
+            region: data.region,
+            alcohol: data.alcohol,
+            ratingOverall: data.rating_overall,
+            ratingPrice: data.rating_price,
+            ratingTaste: data.rating_taste,
+            memo: data.memo,
+            date: data.date,
+            image: data.image_url,
+            thumbnail: data.thumbnail_url
+        };
     }
 };
