@@ -399,8 +399,8 @@ const App = {
 
         const stars = '★'.repeat(score) + '☆'.repeat(5 - score);
 
-        if (label) {
-            return `<span class="stars ${activeClass}"><span style="font-size: 0.8em; margin-right:4px;">${label}</span>${stars}</span>`;
+        if (activeClass) {
+            return `<span class="stars ${activeClass}">${stars}</span>`;
         }
         return `<span class="stars">${stars}</span>`;
     },
