@@ -19,8 +19,8 @@ const App = {
 
     registerServiceWorker() {
         if ('serviceWorker' in navigator) {
-            // Use timestamp or version to bust cache
-            const swUrl = './sw.js?ver=' + new Date().getTime();
+            // Versioning is handled inside sw.js (CACHE_NAME), no need for query param here
+            const swUrl = './sw.js';
             navigator.serviceWorker.register(swUrl)
                 .then(reg => {
                     console.log('Service Worker registered', reg);
