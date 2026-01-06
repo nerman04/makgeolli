@@ -14,7 +14,7 @@ export const router = {
         if (activeView) {
             activeView.classList.add('active');
 
-            // Dispatch event for view change
+            // Dispatch event for view change (뷰가 바뀌었다고 모두에게 알림... )
             window.dispatchEvent(new CustomEvent('viewChanged', { detail: { view: hash.replace('#', '') } }));
         } else {
             // Default to list if route not found
