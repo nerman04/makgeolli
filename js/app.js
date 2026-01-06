@@ -365,13 +365,44 @@ const App = {
                 <div class="card-content">
                     <h3 class="card-title">${log.name}</h3>
                     <div class="card-meta">
-                        <span class="stars">${'★'.repeat(log.ratingOverall || log.rating || 0)}${'☆'.repeat(5 - (log.ratingOverall || log.rating || 0))}</span>
+                        ${this.renderCardRating(log)}
                         <span>${dateStr}</span>
                     </div>
                 </div>
             `;
             listContainer.appendChild(card);
         }
+    },
+
+    renderCardRating(log) {
+        let score = 0;
+        let label = '';
+        let activeClass = '';
+
+        switch (this.currentSort) {
+            case 'ratingPrice':
+                score = log.ratingPrice || 0;
+                label = '가격';
+                activeClass = 'text-accent'; // You might want to define this or reuse existing
+                break;
+            case 'ratingTaste':
+                score = log.ratingTaste || 0;
+                label = '맛';
+                activeClass = 'text-accent';
+                break;
+            case 'ratingOverall':
+            default:
+                score = log.ratingOverall || log.rating || 0;
+                // No label for default/overall to keep it clean, or could add '종합'
+                break;
+        }
+
+        const stars = '★'.repeat(score) + '☆'.repeat(5 - score);
+
+        if (label) {
+            return `<span class="stars ${activeClass}"><span style="font-size: 0.8em; margin-right:4px;">${label}</span>${stars}</span>`;
+        }
+        return `<span class="stars">${stars}</span>`;
     },
 
     async showDetail(id) {

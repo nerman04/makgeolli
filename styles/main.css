@@ -458,3 +458,7 @@ label {
     padding: 40px;
     color: var(--text-secondary);
 }
+
+.text-accent {
+    color: var(--accent-color) !important;
+}
