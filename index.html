@@ -1,176 +1,232 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="ko">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>막걸리 log</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles/main.css?v=4.2">
-    <meta name="theme-color" content="#1a1a1a">
-    <meta name="description" content="나만의 막걸리 기록장">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-
-<body>
-    <div id="app">
-        <header class="app-header">
-            <h1>막걸리 log <span id="total-count" class="header-badge"></span></h1>
-        </header>
-
-        <main id="main-content" class="safe-area">
-            <!-- Views will be injected here -->
-            <div id="list-view" class="view active">
-                <div class="sort-controls">
-                    <button class="sort-chip active" data-sort="date">최신</button>
-                    <button class="sort-chip" data-sort="ratingOverall">별점</button>
-                    <button class="sort-chip" data-sort="ratingPrice">가격</button>
-                    <button class="sort-chip" data-sort="ratingTaste">맛</button>
-                </div>
-                <div id="makgeolli-list" class="card-grid">
-                    <!-- Cards injected via JS -->
-                    <div class="empty-state">
-                        <p>아직 기록된 막걸리가 없습니다.<br>오른쪽 아래 버튼을 눌러 추가해보세요!</p>
-                    </div>
-                </div>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>탁주일기 · 나의 막걸리 기록장</title>
+    <meta
+      name="description"
+      content="한 잔의 발견을 오래 기억하는 나만의 막걸리 기록장"
+    />
+    <meta name="theme-color" content="#234c3c" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="stylesheet" href="styles/main.css?v=5" />
+  </head>
+  <body>
+    <header class="header">
+      <a class="brand" href="#list"
+        ><span class="brand-mark" aria-hidden="true">탁</span
+        ><span>탁주일기<small>MAKGEOLLI JOURNAL</small></span></a
+      >
+      <div class="header-actions">
+        <span id="connection" class="connection" role="status"
+          >연결 확인 중</span
+        ><button id="install-btn" class="button subtle" hidden>앱 설치</button
+        ><button class="button primary" data-add>＋ 새 기록</button>
+      </div>
+    </header>
+    <main id="main">
+      <section id="list-view" class="view" aria-labelledby="page-title">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">A LITTLE CLOUDY, A LOT TO DISCOVER</p>
+            <h1 id="page-title" tabindex="-1">
+              한 잔의 발견,<br />나만의 <em>취향으로.</em>
+            </h1>
+            <p class="hero-copy">
+              처음 만난 막걸리부터 다시 찾고 싶은 한 병까지.<br />맛과 순간을
+              차곡차곡 모아보세요.
+            </p>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <span class="art-caption">쌀 · 물 · 누룩 · 그리고 기록</span>
+            <div class="bottle">
+              <div class="bottle-label">탁주<br /><small>일기</small></div>
             </div>
-
-            <div id="add-view" class="view">
-                <form id="add-form">
-                    <div class="image-upload-container">
-                        <div class="image-buttons" id="image-buttons">
-                            <button type="button" id="btn-camera" class="btn-select-image">
-                                <span>📸</span>
-                                <span>촬영</span>
-                            </button>
-                            <button type="button" id="btn-gallery" class="btn-select-image">
-                                <span>🖼️</span>
-                                <span>앨범</span>
-                            </button>
-                        </div>
-
-                        <!-- Hidden Inputs -->
-                        <input type="file" id="input-camera" accept="image/*" capture="environment" hidden>
-                        <input type="file" id="input-gallery" accept="image/*" hidden>
-
-                        <img id="image-preview" src="" alt="Preview" hidden>
-                        <button type="button" id="remove-image" hidden>×</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="name">이름</label>
-                        <input type="text" id="name" class="form-input" required placeholder="막걸리 이름">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="region">지역</label>
-                        <input type="text" id="region" class="form-input" placeholder="어느 지역 막걸리인가요?">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="alcohol">도수 (%)</label>
-                        <input type="number" id="alcohol" class="form-input" step="0.5" value="5" placeholder="ex) 6.5">
-                    </div>
-
-                    <div class="form-group">
-                        <label>별점 (전체)</label>
-                        <div class="star-rating accent-overall">
-                            <input type="radio" id="overall5" name="rating_overall" value="5" checked><label
-                                for="overall5">★</label>
-                            <input type="radio" id="overall4" name="rating_overall" value="4"><label
-                                for="overall4">★</label>
-                            <input type="radio" id="overall3" name="rating_overall" value="3"><label
-                                for="overall3">★</label>
-                            <input type="radio" id="overall2" name="rating_overall" value="2"><label
-                                for="overall2">★</label>
-                            <input type="radio" id="overall1" name="rating_overall" value="1"><label
-                                for="overall1">★</label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>가격</label>
-                        <div class="star-rating">
-                            <input type="radio" id="price5" name="rating_price" value="5" checked><label
-                                for="price5">★</label>
-                            <input type="radio" id="price4" name="rating_price" value="4"><label for="price4">★</label>
-                            <input type="radio" id="price3" name="rating_price" value="3"><label for="price3">★</label>
-                            <input type="radio" id="price2" name="rating_price" value="2"><label for="price2">★</label>
-                            <input type="radio" id="price1" name="rating_price" value="1"><label for="price1">★</label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>맛</label>
-                        <div class="star-rating">
-                            <input type="radio" id="taste5" name="rating_taste" value="5" checked><label
-                                for="taste5">★</label>
-                            <input type="radio" id="taste4" name="rating_taste" value="4"><label for="taste4">★</label>
-                            <input type="radio" id="taste3" name="rating_taste" value="3"><label for="taste3">★</label>
-                            <input type="radio" id="taste2" name="rating_taste" value="2"><label for="taste2">★</label>
-                            <input type="radio" id="taste1" name="rating_taste" value="1"><label for="taste1">★</label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="memo">메모</label>
-                        <textarea id="memo" class="form-input" rows="3" placeholder="어떤 특징이 더 있나요?"></textarea>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" id="cancel-btn" class="btn secondary">취소</button>
-                        <button type="submit" class="btn primary">저장</button>
-                    </div>
-                </form>
-            </div>
-
-            <div id="detail-view" class="view">
-                <button type="button" id="back-btn" class="btn-icon">←</button>
-                <div class="detail-container">
-                    <img id="detail-image" src="" alt="Detail Image">
-                    <div class="detail-content">
-                        <h2 id="detail-name"></h2>
-
-                        <div class="detail-info-row">
-                            <span class="label">지역</span>
-                            <span id="detail-region" class="value"></span>
-                        </div>
-
-                        <div class="detail-info-row">
-                            <span class="label">도수</span>
-                            <span id="detail-alcohol" class="value"></span>
-                        </div>
-
-                        <div class="detail-info-row">
-                            <span class="label">별점 (전체)</span>
-                            <span id="detail-rating-overall" class="stars-display-small"></span>
-                        </div>
-                        <div class="detail-info-row">
-                            <span class="label">가격</span>
-                            <span id="detail-rating-price" class="stars-display-small"></span>
-                        </div>
-                        <div class="detail-info-row">
-                            <span class="label">맛</span>
-                            <span id="detail-rating-taste" class="stars-display-small"></span>
-                        </div>
-                        <p id="detail-memo" class="memo-text"></p>
-                        <p id="detail-date" class="date-text"></p>
-
-                        <div class="action-buttons" style="margin-top: 30px;">
-                            <button type="button" id="delete-btn" class="btn danger-btn">삭제하기</button>
-                        </div>
-                    </div>
+            <div class="bowl"></div>
+            <span class="art-stamp">나의<br />한 잔</span>
+          </div>
+        </div>
+        <div id="stats" class="stats" aria-label="기록 통계"></div>
+        <div class="collection-heading">
+          <div>
+            <p class="eyebrow">MY COLLECTION</p>
+            <h2>나의 막걸리 선반 <span id="total-count"></span></h2>
+          </div>
+          <div class="export-actions">
+            <button id="refresh-btn" class="button subtle">새로고침</button
+            ><button id="export-btn" class="button subtle">CSV 내보내기</button
+            ><button id="backup-btn" class="button subtle">
+              JSON 내보내기
+            </button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="search"
+            ><span aria-hidden="true">⌕</span
+            ><input
+              id="search"
+              type="search"
+              placeholder="막걸리 이름, 지역, 메모 검색"
+              aria-label="기록 검색" /></label
+          ><select id="region-filter" aria-label="지역 필터">
+            <option value="">모든 지역</option></select
+          ><select id="sort" aria-label="정렬">
+            <option value="date">최근 기록순</option>
+            <option value="ratingOverall">종합 평점순</option>
+            <option value="ratingTaste">맛 평점순</option>
+            <option value="ratingPrice">가성비순</option>
+            <option value="name">이름순</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <div class="chips" role="group" aria-label="빠른 필터">
+            <button class="chip active" data-filter="all" aria-pressed="true">
+              전체 기록</button
+            ><button class="chip" data-filter="best" aria-pressed="false">
+              ★ 4점 이상</button
+            ><button class="chip" data-filter="favorite" aria-pressed="false">
+              ♡ 다시 마실 술
+            </button>
+          </div>
+          <span id="result-count" class="muted" aria-live="polite"></span>
+        </div>
+        <p id="load-error" class="notice" role="alert" hidden></p>
+        <div id="makgeolli-list" class="card-grid" aria-busy="true"></div>
+        <p class="collection-note">
+          ♡ 다시 마실 술 표시는 이 브라우저에 저장됩니다.
+        </p>
+      </section>
+      <section id="add-view" class="view" hidden aria-labelledby="form-title">
+        <button class="button subtle" data-back>← 선반으로</button>
+        <div class="section-heading">
+          <p class="eyebrow">A NEW DISCOVERY</p>
+          <h1 id="form-title" tabindex="-1">새로운 한 잔 기록하기</h1>
+          <p class="muted">
+            이름만으로도 시작할 수 있어요. 나머지는 천천히 채워보세요.
+          </p>
+        </div>
+        <form id="add-form">
+          <div class="editor-layout">
+            <aside>
+              <div class="photo-box">
+                <img id="image-preview" alt="선택한 막걸리 사진" hidden />
+                <div id="photo-placeholder">
+                  <span class="photo-symbol" aria-hidden="true">▧</span>
+                  <h3>한 병의 첫인상</h3>
+                  <p>라벨이 잘 보이는 사진을 남겨보세요.</p>
                 </div>
+              </div>
+              <div class="photo-actions">
+                <button id="btn-camera" type="button" class="button secondary">
+                  사진 촬영</button
+                ><button
+                  id="btn-gallery"
+                  type="button"
+                  class="button secondary"
+                >
+                  사진 선택</button
+                ><button
+                  id="remove-image"
+                  type="button"
+                  class="button subtle"
+                  hidden
+                >
+                  사진 제거
+                </button>
+              </div>
+              <p class="help">최대 15MB · 사진은 저장 전에 압축됩니다.</p>
+              <input
+                id="input-camera"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                hidden
+              /><input id="input-gallery" type="file" accept="image/*" hidden />
+            </aside>
+            <div class="form-panel">
+              <h2>01 <span>막걸리 정보</span></h2>
+              <div class="form-grid">
+                <label class="wide"
+                  >막걸리 이름 <span class="required">*</span
+                  ><input
+                    id="name"
+                    required
+                    maxlength="100"
+                    placeholder="예: 오늘 만난 생막걸리"
+                    autocomplete="off" /></label
+                ><label
+                  >지역 / 양조장<input
+                    id="region"
+                    maxlength="100"
+                    list="regions"
+                    placeholder="예: 경기 양평 · ○○양조장" /><datalist
+                    id="regions"
+                  ></datalist></label
+                ><label
+                  >알코올 도수 (%)<input
+                    id="alcohol"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="예: 6"
+                    inputmode="decimal" /></label
+                ><label
+                  >마신 날짜<input id="date" type="date" required
+                /></label>
+              </div>
+              <h2>02 <span>나의 취향 점수</span></h2>
+              <p class="help">
+                미평가로 남겨두어도 괜찮아요. 가성비는 높을수록 만족한
+                가격이에요.
+              </p>
+              <div id="rating-fields" class="rating-fields"></div>
+              <h2>03 <span>기억하고 싶은 이야기</span></h2>
+              <label for="memo">시음 메모</label
+              ><textarea
+                id="memo"
+                rows="5"
+                maxlength="5000"
+                placeholder="첫 향, 단맛과 산미, 탄산감은 어땠나요? 함께 먹은 안주와 구매 가격도 남겨보세요."
+              ></textarea>
+              <div class="memo-prompts">
+                <span class="help">메모 힌트</span
+                ><button type="button" data-prompt="#달콤함">#달콤함</button
+                ><button type="button" data-prompt="#산뜻함">#산뜻함</button
+                ><button type="button" data-prompt="#묵직함">#묵직함</button
+                ><button type="button" data-prompt="#인생막걸리">
+                  #인생막걸리
+                </button>
+              </div>
+              <p id="form-error" class="notice" role="alert" hidden></p>
+              <div class="form-actions">
+                <button type="button" class="button secondary" data-back>
+                  취소</button
+                ><button id="save-btn" type="submit" class="button primary">
+                  기록 저장하기
+                </button>
+              </div>
             </div>
-        </main>
-
-        <button id="fab-add" class="fab" aria-label="추가">
-            +
-        </button>
-    </div>
-
-    <script type="module" src="js/app.js?v=4.2"></script>
-</body>
-
+          </div>
+        </form>
+      </section>
+      <section
+        id="detail-view"
+        class="view"
+        hidden
+        aria-labelledby="detail-name"
+      >
+        <button class="button subtle" data-back>← 선반으로</button>
+        <div id="detail-content"></div>
+      </section>
+      <footer>탁주일기 <span>취향은 기록할수록 선명해지니까.</span></footer>
+    </main>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script type="module" src="js/app.js?v=5"></script>
+  </body>
 </html>

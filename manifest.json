@@ -1,22 +1,14 @@
-{
-  "name": "막걸리 Log",
-  "short_name": "막걸리Log",
-  "description": "나만의 막걸리 기록장",
+﻿{
+  "name": "탁주일기 · 나의 막걸리 기록장",
+  "short_name": "탁주일기",
+  "description": "한 잔의 발견을 오래 기억하는 막걸리 기록장",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#1a1a1a",
-  "theme_color": "#1a1a1a",
-  "orientation": "portrait",
+  "background_color": "#f7f6f0",
+  "theme_color": "#234c3c",
   "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
