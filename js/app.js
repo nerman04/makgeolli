@@ -657,6 +657,37 @@ function download(content, type, extension) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast("전체 기록을 내보냈습니다. 사진은 URL로 포함됩니다.");
 }
+function registerUpdates() {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || document.getElementById("update-btn")) return;
+    const button = element("button", "button secondary", "새 버전 적용");
+    button.id = "update-btn";
+    button.type = "button";
+    button.onclick = () => {
+      if (state.busy || state.photoBusy) {
+        toast("저장 또는 사진 처리가 끝난 후 적용해 주세요.");
+        return;
+      }
+      if (!leaveForm()) return;
+      state.dirty = false;
+      location.reload();
+    };
+    document.querySelector(".header-actions").prepend(button);
+    toast("새 버전이 준비됐습니다. 상단의 새 버전 적용을 눌러 주세요.");
+  });
+  navigator.serviceWorker
+    .register("./sw.js", { updateViaCache: "none" })
+    .then((registration) => {
+      const check = () => registration.update().catch(console.warn);
+      check();
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && navigator.onLine) check();
+      });
+    })
+    .catch(console.warn);
+}
+
 function init() {
   const favorites = readLocal(favoriteKey, []);
   state.favorites = Array.isArray(favorites) ? favorites.map(String) : [];
@@ -772,6 +803,6 @@ function init() {
   route();
   loadLogs();
   if ("serviceWorker" in navigator && location.protocol !== "file:")
-    navigator.serviceWorker.register("./sw.js").catch(console.warn);
+    registerUpdates();
 }
 init();

@@ -36,6 +36,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
   assert.equal(utils.statistics(testLogs).average, "5.0");
   assert.equal(utils.safeImageURL("javascript:alert(1)"), "");
   assert.ok(utils.toCSV(testLogs).includes("'=HYPERLINK"));
+  let release = 1;
   const server = http.createServer((req, res) => {
     const relative =
       decodeURIComponent(new URL(req.url, "http://localhost").pathname).replace(
@@ -62,6 +63,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
           ".png": "image/png",
         }[path.extname(file)] || "application/octet-stream",
       );
+      if (relative === "styles/main.css")
+        data = Buffer.from(
+          data.toString() + `\n:root { --test-release: ${release}; }`,
+        );
+      if (relative === "sw.js")
+        data = Buffer.from(data.toString() + `\n// Test deployment ${release}`);
+      res.setHeader("Cache-Control", "max-age=600");
       res.end(data);
     });
   });
@@ -273,6 +281,46 @@ const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
     await offlinePage.evaluate(() => navigator.serviceWorker.ready);
     await offlinePage.waitForFunction(
       () => !!navigator.serviceWorker.controller,
+    );
+    await offlinePage.reload();
+    await offlinePage.locator("[data-add]").click();
+    await offlinePage.locator("#name").fill("업데이트 중 보존할 기록");
+    release = 2;
+    await offlinePage.evaluate(async () =>
+      (await navigator.serviceWorker.getRegistration()).update(),
+    );
+    await offlinePage.locator("#update-btn").waitFor();
+    assert.equal(
+      await offlinePage.locator("#name").inputValue(),
+      "업데이트 중 보존할 기록",
+    );
+    offlinePage.once("dialog", (dialog) => dialog.dismiss());
+    await offlinePage.locator("#update-btn").click();
+    assert.equal(
+      await offlinePage.locator("#name").inputValue(),
+      "업데이트 중 보존할 기록",
+    );
+    offlinePage.once("dialog", (dialog) => dialog.accept());
+    await offlinePage.locator("[data-back]").first().click();
+    await offlinePage.waitForURL("**/#list");
+    await offlinePage.locator("#update-btn").click();
+    await offlinePage.waitForFunction(
+      () =>
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--test-release")
+          .trim() === "2",
+    );
+    // Change CSS without changing any cache name or service-worker registration.
+    release = 3;
+    await offlinePage.reload();
+    await offlinePage.waitForFunction(
+      () =>
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--test-release")
+          .trim() === "3",
+    );
+    console.log(
+      "PASS: worker activates with an open tab; draft survives; update confirmation; new CSS bypasses max-age=600 without a cache-name bump.",
     );
     await offlineContext.unroute("https://*.supabase.co/**");
     await offlineContext.setOffline(true);
